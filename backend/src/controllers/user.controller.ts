@@ -1,21 +1,24 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import userService from '../services/user.service';
 
-export const createUser = async (req: Request, res: Response) => {
+export const createUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const user = await userService.createUser(req.body);
     res.status(201).json(user);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(error);
   }
 };
 
-export const getUserById = async (req: Request, res: Response) => {
+export const getUserById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const user = await userService.getUserById(req.params.id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    res.status(200).json(user);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+    } else {
+      res.status(200).json(user);
+    }
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(error);
   }
 };
