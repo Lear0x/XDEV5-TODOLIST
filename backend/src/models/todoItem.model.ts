@@ -8,7 +8,7 @@ export interface ITodoItem extends Document {
   tag: string[];
   startDate: Date;
   endDate: Date;
-  state: 'To do' | 'pending' | 'Done';
+  state: 'To do' | 'Pending' | 'Done';
 }
 
 const todoItemSchema = new Schema<ITodoItem>({
@@ -19,7 +19,7 @@ const todoItemSchema = new Schema<ITodoItem>({
   tag: [{ type: String }],
   startDate: { type: Date },
   endDate: { type: Date },
-  state: { type: String, enum: ['To do', 'pending', 'Done'], default: 'Done' }
+  state: { type: String, enum: ['To do', 'Pending', 'Done'], default: 'Done' }
 });
 
 export const TodoItem = model<ITodoItem>('TodoItem', todoItemSchema);

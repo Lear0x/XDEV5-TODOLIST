@@ -11,7 +11,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const mongoURI = process.env.MONGO_URI || 'mongodb://admin:pass@mongo:27017?authSource=admin';
+const mongoURI = process.env.MONGO_URI || 'mongodb://admin:pass@mongo:27017/todolist?authSource=admin';
 
 app.use(express.json());
 
