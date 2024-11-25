@@ -27,24 +27,26 @@ Une application web de gestion de tâches conçue pour aider les utilisateurs à
 ### **Gestion des tâches**
 - Création de tâches avec des attributs : titre, description, priorité, échéance, tags
 - Organisation des taches dans des ToDoList
-- Affichage des taches par états : Todo, in progress, done
+- Affichage des taches par états : Todo, In Progress, Done
 - Filtrage des taches
 
 
 ### **Suivi et mise à jour**
 - Suivi de l'avancement avec des statuts évolutifs :
-  - "À faire"
-  - "En cours"
-  - "Terminé"
+  - "To Do"
+  - "In Progress"
+  - "Done"
 - Modification ou suppression des tâches existantes.
 
 ---
 
 ## 📝 **Installation et exécution**
 ### **Prérequis**
-
+- Docker
 
 ### **Étapes pour exécuter le projet :**
 1. Clonez le dépôt :
    ```bash
    git clone https://github.com/Lear0x/XDEV5-TODOLIST.git
+   cd XDEV5-TODOLIST
+   docker compose up --build -d
