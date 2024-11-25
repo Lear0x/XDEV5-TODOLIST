@@ -43,25 +43,15 @@ Une application web de gestion de tâches conçue pour aider les utilisateurs à
 ## 📝 **Installation et exécution**
 ### **Prérequis**
 - Docker
-<<<<<<< HEAD
-### Exécution
-Lancement dev (racine du projet): docker-compose up --build
-Arrêt : docker-compose down
- 
+
 ### Accès
-Backend : Accessible via http://localhost:3000
-Frontend : Accessible via http://localhost:8080
-Mongo-Express : Accessible via http://localhost:8081
-=======
->>>>>>> c0cc4a7145db7337971e8a89c221f7fa0f8b269d
+- Backend : Accessible via http://localhost:3000
+- Frontend : Accessible via http://localhost:8080
+- Mongo-Express : Accessible via http://localhost:8081
 
 ### **Étapes pour exécuter le projet :**
 1. Clonez le dépôt :
    ```bash
    git clone https://github.com/Lear0x/XDEV5-TODOLIST.git
    cd XDEV5-TODOLIST
-<<<<<<< HEAD
    docker compose up --build -d
-=======
-   docker compose up --build -d
->>>>>>> c0cc4a7145db7337971e8a89c221f7fa0f8b269d
