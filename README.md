@@ -54,4 +54,4 @@ Une application web de gestion de tâches conçue pour aider les utilisateurs à
    ```bash
    git clone https://github.com/Lear0x/XDEV5-TODOLIST.git
    cd XDEV5-TODOLIST
-   docker compose up --build -d
+   docker-compose up --build -d
