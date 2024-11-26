@@ -2,11 +2,11 @@
   <div class="modal-overlay" v-if="visible">
     <div class="modal">
       <h2>
-        {{ isEditMode ? "Modifier une tâche" : "Créer une nouvelle tâche" }}
+        {{ isEditMode ? "Update task" : "Create task" }}
       </h2>
       <form @submit.prevent="handleSubmit">
-        <label for="title">Titre:</label>
-        <input id="title" v-model="taskData.title" required />
+        <label for="label">label:</label>
+        <input id="label" v-model="taskData.label" required />
 
         <label for="description">Description:</label>
         <textarea
@@ -15,17 +15,17 @@
           required
         ></textarea>
 
-        <label for="priority">Priorité:</label>
+        <label for="priority">priority:</label>
         <select id="priority" v-model="taskData.priority" required>
-          <option value="Haute">Haute</option>
-          <option value="Moyenne">Moyenne</option>
-          <option value="Basse">Basse</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
         </select>
 
         <label for="tag">Tag:</label>
-        <input id="tag" v-model="taskData.tag" required />
+        <input id="tag" v-model="taskData.tag" />
 
-        <label for="startDate">Date de début:</label>
+        <label for="startDate">Start Date:</label>
         <input
           id="startDate"
           type="date"
@@ -33,21 +33,21 @@
           required
         />
 
-        <label for="endDate">Date de fin:</label>
+        <label for="endDate">End Date:</label>
         <input id="endDate" type="date" v-model="taskData.endDate" required />
 
-        <label for="state">État:</label>
+        <label for="state">State:</label>
         <select id="state" v-model="taskData.state" required>
-          <option value="todo">TO DO</option>
-          <option value="inProgress">In Progress</option>
-          <option value="finish">Finish</option>
+          <option value="To do">TO DO</option>
+          <option value="Pending">Pending</option>
+          <option value="Done">Done</option>
         </select>
 
         <div class="form-actions">
           <button type="submit">
-            {{ isEditMode ? "Modifier" : "Ajouter" }}
+            {{ isEditMode ? "Update" : "Add" }}
           </button>
-          <button type="button" @click="$emit('close')">Annuler</button>
+          <button type="button" @click="$emit('close')">Cancel</button>
         </div>
       </form>
     </div>
@@ -62,25 +62,26 @@ export default {
     task: {
       type: Object,
       default: () => ({
-        title: "",
+        label: "",
         description: "",
-        priority: "Moyenne",
+        priority: "",
         tag: "",
         startDate: "",
         endDate: "",
-        state: "todo",
+        state: "To do", 
+        assignedTo: "6745c904e91d2af46701ab45",
       }),
     },
     isEditMode: { type: Boolean, default: false },
   },
   data() {
     return {
-      taskData: { ...this.task }, // Copie des données pour modification locale
+      taskData: { ...this.task },
     };
   },
   methods: {
     handleSubmit() {
-      this.$emit("submit", this.taskData); // Émet l'événement avec les données de la tâche
+      this.$emit("submit", this.taskData);
     },
   },
 };

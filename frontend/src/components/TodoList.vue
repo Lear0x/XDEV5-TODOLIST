@@ -1,16 +1,15 @@
 <template>
   <div class="todolist">
     <h1>
-      ToDoList Vue {{ id }}
+      ToDoList Vue {{ this.id }}
       <button class="add-task-btn" @click="openAddTaskModal">+</button>
     </h1>
 
     <div class="columns">
-      <!-- Colonnes des tâches -->
       <div class="column">
         <h2>TO DO</h2>
         <Task
-          v-for="task in tasks.todo"
+          v-for="task in tasks.filter((task) => task.state === 'To do')"
           :key="task.id"
           :task="task"
           @edit-task="openEditTaskModal(task)"
@@ -19,9 +18,9 @@
       </div>
 
       <div class="column">
-        <h2>In Progress</h2>
+        <h2>PENDING</h2>
         <Task
-          v-for="task in tasks.inProgress"
+          v-for="task in tasks.filter((task) => task.state === 'Pending')"
           :key="task.id"
           :task="task"
           @edit-task="openEditTaskModal"
@@ -30,9 +29,9 @@
       </div>
 
       <div class="column">
-        <h2>Finish</h2>
+        <h2>DONE</h2>
         <Task
-          v-for="task in tasks.finish"
+          v-for="task in tasks.filter((task) => task.state === 'Done')"
           :key="task.id"
           :task="task"
           @edit-task="openEditTaskModal"
@@ -55,54 +54,37 @@
 <script>
 import Task from "./Task.vue";
 import TaskModal from "./TaskModal.vue";
+import axios from "axios";
 
 export default {
   name: "ToDoList",
+  props: ["id"],
   components: { Task, TaskModal },
   data() {
     return {
       showModal: false,
       isEditMode: false,
       selectedTask: null,
-      tasks: {
-        todo: [
-          {
-            id: 1,
-            title: "Tâche 1",
-            priority: "Haute",
-            deadline: "2024-11-30",
-            state: "todo",
-          },
-          {
-            id: 2,
-            title: "Tâche 2",
-            priority: "Moyenne",
-            deadline: "2024-12-05",
-            state: "todo",
-          },
-        ],
-        inProgress: [
-          {
-            id: 3,
-            title: "Tâche 3",
-            priority: "Basse",
-            deadline: "2024-12-01",
-            state: "inProgress",
-          },
-        ],
-        finish: [
-          {
-            id: 4,
-            title: "Tâche 4",
-            priority: "Moyenne",
-            deadline: "2024-11-25",
-            state: "finish",
-          },
-        ],
-      },
+      todolist: [],
+      tasks: [],
     };
   },
   methods: {
+    async fetchTodoList() {
+      try {
+        const id = this.id;
+        await axios
+          .get(`http://localhost:3000/api/todo-lists/${id}`)
+          .then((response) => {
+            this.tasks = response.data.todoItems;
+            console.log(this.tasks);
+          });
+
+        console.log(this.tasks);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des todolists :", error);
+      }
+    },
     openAddTaskModal() {
       this.selectedTask = null;
       this.isEditMode = false;
@@ -116,9 +98,8 @@ export default {
     closeModal() {
       this.showModal = false;
     },
-    handleTaskSubmit(task) {
+    async handleTaskSubmit(task) {
       if (this.isEditMode) {
-        // Met à jour la tâche existante
         Object.keys(this.tasks).forEach((state) => {
           const index = this.tasks[state].findIndex((t) => t.id === task.id);
           if (index !== -1) {
@@ -126,8 +107,28 @@ export default {
           }
         });
       } else {
-        // Ajoute une nouvelle tâche
-        this.tasks[task.state].push({ ...task, id: Date.now() });
+        console.log(task);
+
+        task.assignedTo = "6745c904e91d2af46701ab45";
+        try {
+          await axios
+            .post(`http://localhost:3000/api/todo-items`, task)
+            .then(async (response) => {
+              console.log("response", response);
+              console.log("item", this.tasks);
+              const id = {
+                todoItemId: response.data._id,
+              };
+
+              await axios
+                .put(`http://localhost:3000/api/todo-Lists/${this.id}`, id)
+                .then((response2) => {
+                  console.log("response2", response2);
+                });
+            });
+        } catch (error) {
+          console.error("Erreur lors de l'ajout d'un item :", error);
+        }
       }
       this.closeModal();
     },
@@ -136,6 +137,9 @@ export default {
         this.tasks[state] = this.tasks[state].filter((task) => task.id !== id);
       });
     },
+  },
+  mounted() {
+    this.fetchTodoList();
   },
 };
 </script>

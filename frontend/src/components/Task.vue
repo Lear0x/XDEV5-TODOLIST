@@ -1,8 +1,9 @@
 <template>
   <div class="task-box">
-    <p class="task-title">{{ task.title }}</p>
-    <p class="task-priority">Priorité: {{ task.priority }}</p>
-    <p class="task-deadline">Échéance: {{ task.deadline }}</p>
+    <h3 class="task-title">{{ task.label }}</h3>
+    <p class="task-deadline">{{ task.description }}</p>
+    <p class="task-priority">Priority: {{ task.priority }}</p>
+    <p class="task-deadline">{{ task.startDate }} - {{ task.endDate }}</p>
     <div class="task-actions">
       <button class="edit-btn" @click="editTask(task)">✏️</button>
       <button class="delete-btn">🗑️</button>

@@ -82,6 +82,7 @@ export default {
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
   background-color: #f9f9f9;
   transition: transform 0.3s, box-shadow 0.3s;
+  padding: 10px;
 }
 
 .todo-box h2 {
