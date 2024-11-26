@@ -5,7 +5,7 @@ FROM node:18
 WORKDIR /app
 
 # Copier les fichiers nécessaires pour installer les dépendances
-COPY package*.json tsconfig.json ./
+    COPY package*.json tsconfig.json ./
 
 # Installer les dépendances
 RUN npm install

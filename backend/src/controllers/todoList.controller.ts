@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import todoListService from '../services/todoList.service';
+import mongoose from 'mongoose';
 
 export const createTodoList = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -36,17 +37,48 @@ export const getAllTodoLists = async (req: Request, res: Response, next: NextFun
 
 export const updateTodoList = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const todoList = await todoListService.updateTodoList(req.params.id, req.body);
-    if (!todoList) {
+    const listId = req.params.id;
+    const { todoItemId, ...updateData } = req.body;
+
+    // Vérifier si l'ID de la liste est valide
+    if (!mongoose.Types.ObjectId.isValid(listId)) {
+      res.status(400).json({ error: 'Invalid TodoList ID' });
+      return;
+    }
+
+    // Ajouter un todoItemId si fourni
+    if (todoItemId) {
+      if (!mongoose.Types.ObjectId.isValid(todoItemId)) {
+        res.status(400).json({ error: 'Invalid TodoItem ID' });
+        return;
+      }
+
+      // Récupérer la liste pour vérifier et ajouter l'élément
+      const todoList = await todoListService.getTodoListById(listId);
+      if (!todoList) {
+        res.status(404).json({ error: 'TodoList not found' });
+        return;
+      }
+
+      // Ajouter l'ID de l'élément si ce n'est pas déjà présent
+      if (!todoList.todoItems.includes(todoItemId)) {
+        todoList.todoItems.push(todoItemId as any);
+        await todoList.save();
+      }
+    }
+
+    // Mettre à jour les autres champs
+    const updatedList = await todoListService.updateTodoList(listId, updateData);
+
+    if (!updatedList) {
       res.status(404).json({ error: 'TodoList not found' });
     } else {
-      res.status(200).json(todoList);
+      res.status(200).json(updatedList);
     }
   } catch (error) {
     next(error);
   }
 };
-
 export const deleteTodoList = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const todoList = await todoListService.deleteTodoList(req.params.id);
@@ -60,12 +92,3 @@ export const deleteTodoList = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-export const addTodoItemToList = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const { listId, todoItemId } = req.params;
-    const updatedList = await todoListService.addTodoItemToList(listId, todoItemId);
-    res.status(200).json(updatedList);
-  } catch (error) {
-    next(error);
-  }
-};
