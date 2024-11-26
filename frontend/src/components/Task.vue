@@ -4,7 +4,7 @@
     <p class="task-priority">Priorité: {{ task.priority }}</p>
     <p class="task-deadline">Échéance: {{ task.deadline }}</p>
     <div class="task-actions">
-      <button class="edit-btn">✏️</button>
+      <button class="edit-btn" @click="editTask(task)">✏️</button>
       <button class="delete-btn">🗑️</button>
     </div>
   </div>
@@ -20,8 +20,8 @@ export default {
     },
   },
   methods: {
-    editTask(id) {
-      this.$emit("edit-task", id);
+    editTask(task) {
+      this.$emit("edit-task", task);
     },
     deleteTask(id) {
       this.$emit("delete-task", id);

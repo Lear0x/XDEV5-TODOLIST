@@ -2,18 +2,18 @@
   <div class="todolist">
     <h1>
       ToDoList Vue {{ id }}
-      <button class="add-task-btn" @click="showModal = true">+</button>
+      <button class="add-task-btn" @click="openAddTaskModal">+</button>
     </h1>
 
-    <!-- Colonnes des tâches -->
     <div class="columns">
+      <!-- Colonnes des tâches -->
       <div class="column">
         <h2>TO DO</h2>
         <Task
           v-for="task in tasks.todo"
           :key="task.id"
           :task="task"
-          @edit-task="editTask"
+          @edit-task="openEditTaskModal(task)"
           @delete-task="deleteTask"
         />
       </div>
@@ -24,7 +24,7 @@
           v-for="task in tasks.inProgress"
           :key="task.id"
           :task="task"
-          @edit-task="editTask"
+          @edit-task="openEditTaskModal"
           @delete-task="deleteTask"
         />
       </div>
@@ -35,86 +35,35 @@
           v-for="task in tasks.finish"
           :key="task.id"
           :task="task"
-          @edit-task="editTask"
+          @edit-task="openEditTaskModal"
           @delete-task="deleteTask"
         />
       </div>
     </div>
 
-    <!-- Modale pour créer une tâche -->
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal">
-        <h2>Créer une nouvelle tâche</h2>
-        <form @submit.prevent="addTask">
-          <label for="title">Titre:</label>
-          <input id="title" v-model="newTask.title" required />
-
-          <label for="description">Description:</label>
-          <textarea
-            id="description"
-            v-model="newTask.description"
-            required
-          ></textarea>
-
-          <label for="priority">Priorité:</label>
-          <select id="priority" v-model="newTask.priority" required>
-            <option value="Haute">Haute</option>
-            <option value="Moyenne">Moyenne</option>
-            <option value="Basse">Basse</option>
-          </select>
-
-          <label for="tag">Tag:</label>
-          <input id="tag" v-model="newTask.tag" required />
-
-          <label for="startDate">Date de début:</label>
-          <input
-            id="startDate"
-            type="date"
-            v-model="newTask.startDate"
-            required
-          />
-
-          <label for="endDate">Date de fin:</label>
-          <input id="endDate" type="date" v-model="newTask.endDate" required />
-
-          <label for="state">État:</label>
-          <select id="state" v-model="newTask.state" required>
-            <option value="todo">TO DO</option>
-            <option value="inProgress">In Progress</option>
-            <option value="finish">Finish</option>
-          </select>
-
-          <div class="form-actions">
-            <button type="submit">Ajouter</button>
-            <button type="button" @click="showModal = false">Annuler</button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <!-- Composant réutilisable TaskModal -->
+    <TaskModal
+      :visible="showModal"
+      :task="selectedTask"
+      :isEditMode="isEditMode"
+      @submit="handleTaskSubmit"
+      @close="closeModal"
+    />
   </div>
 </template>
 
 <script>
 import Task from "./Task.vue";
+import TaskModal from "./TaskModal.vue";
 
 export default {
   name: "ToDoList",
-  props: ["id"],
-  components: {
-    Task,
-  },
+  components: { Task, TaskModal },
   data() {
     return {
       showModal: false,
-      newTask: {
-        title: "",
-        description: "",
-        priority: "Moyenne",
-        tag: "",
-        startDate: "",
-        endDate: "",
-        state: "todo",
-      },
+      isEditMode: false,
+      selectedTask: null,
       tasks: {
         todo: [
           {
@@ -154,36 +103,35 @@ export default {
     };
   },
   methods: {
-    addTask() {
-      const newTask = { ...this.newTask, id: Date.now() };
-
-      // Ajouter la tâche dans la bonne liste selon l'état
-      if (newTask.state === "todo") {
-        this.tasks.todo.push(newTask);
-      } else if (newTask.state === "inProgress") {
-        this.tasks.inProgress.push(newTask);
-      } else if (newTask.state === "finish") {
-        this.tasks.finish.push(newTask);
-      }
-
-      // Réinitialiser le formulaire et fermer la modale
-      this.newTask = {
-        title: "",
-        description: "",
-        priority: "Moyenne",
-        tag: "",
-        startDate: "",
-        endDate: "",
-        state: "todo",
-      };
+    openAddTaskModal() {
+      this.selectedTask = null;
+      this.isEditMode = false;
+      this.showModal = true;
+    },
+    openEditTaskModal(task) {
+      this.selectedTask = task;
+      this.isEditMode = true;
+      this.showModal = true;
+    },
+    closeModal() {
       this.showModal = false;
     },
-    editTask(id) {
-      alert(`Éditer la tâche avec l'ID ${id}`);
-      // Implémente ici la logique d'édition
+    handleTaskSubmit(task) {
+      if (this.isEditMode) {
+        // Met à jour la tâche existante
+        Object.keys(this.tasks).forEach((state) => {
+          const index = this.tasks[state].findIndex((t) => t.id === task.id);
+          if (index !== -1) {
+            this.tasks[state][index] = task;
+          }
+        });
+      } else {
+        // Ajoute une nouvelle tâche
+        this.tasks[task.state].push({ ...task, id: Date.now() });
+      }
+      this.closeModal();
     },
     deleteTask(id) {
-      // Recherche et suppression dans les listes appropriées
       Object.keys(this.tasks).forEach((state) => {
         this.tasks[state] = this.tasks[state].filter((task) => task.id !== id);
       });
@@ -246,110 +194,5 @@ export default {
   margin-bottom: 10px;
   padding: 8px;
   border-radius: 5px;
-}
-
-/* Styles de la modale */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.modal {
-  background: white;
-  padding: 15px;
-  padding-right: 25px;
-  border-radius: 10px;
-  width: 300px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-  animation: fadeIn 0.3s ease;
-}
-
-.modal h2 {
-  font-size: 25px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-.modal form label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 4px;
-  margin-top: 8px;
-  font-size: 15px;
-  color: #444;
-}
-
-.modal form input,
-.modal form textarea,
-.modal form select {
-  width: 100%;
-  padding: 6px;
-  margin-bottom: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 15px;
-  outline: none;
-  transition: border-color 0.3s;
-}
-
-.modal form input:focus,
-.modal form textarea:focus,
-.modal form select:focus {
-  border-color: #28a745;
-}
-
-.modal .form-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-
-.modal .form-actions button {
-  padding: 6px 10px;
-  font-size: 15px;
-  font-weight: bold;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.modal .form-actions button[type="submit"] {
-  background: #28a745;
-  color: white;
-}
-
-.modal .form-actions button[type="submit"]:hover {
-  background: #218838;
-}
-
-.modal .form-actions button[type="button"] {
-  background: #dc3545;
-  color: white;
-}
-
-.modal .form-actions button[type="button"]:hover {
-  background: #c82333;
-}
-
-/* Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 </style>
