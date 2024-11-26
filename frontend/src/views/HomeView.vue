@@ -1,17 +1,16 @@
 <template>
   <div class="home">
-    <TodoList />
+    <HomePage />
   </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-//import HomePage from "@/components/HomePage.vue";
-import TodoList from "@/components/TodoList.vue";
+import HomePage from "@/components/HomePage.vue";
 
 @Options({
   components: {
-    TodoList,
+    HomePage,
   },
 })
 export default class HomeView extends Vue {}

@@ -1,7 +1,7 @@
 <template>
   <div class="todolist">
     <h1>
-      ToDoList Vue
+      ToDoList Vue {{ id }}
       <button class="add-task-btn" @click="showModal = true">+</button>
     </h1>
 
@@ -99,6 +99,7 @@ import Task from "./Task.vue";
 
 export default {
   name: "ToDoList",
+  props: ["id"],
   components: {
     Task,
   },

@@ -2,7 +2,12 @@
   <div class="homepage">
     <h1>Mes ToDoLists</h1>
     <div class="todo-lists">
-      <div class="todo-box" v-for="list in todoLists" :key="list.id">
+      <div
+        class="todo-box"
+        v-for="list in todoLists"
+        :key="list.id"
+        @click="goToList(list.id)"
+      >
         <h2>{{ list.label }}</h2>
       </div>
     </div>
