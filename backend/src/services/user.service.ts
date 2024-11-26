@@ -7,7 +7,7 @@ class UserService {
   }
 
   async getUserById(id: string): Promise<IUser | null> {
-    return await User.findById(id).populate('todoItems');
+    return await User.findById(id).populate('todoLists');
   }
 
   async updateUser(id: string, data: Partial<IUser>): Promise<IUser | null> {
@@ -16,6 +16,10 @@ class UserService {
 
   async deleteUser(id: string): Promise<IUser | null> {
     return await User.findByIdAndDelete(id);
+  }
+
+  async getTodoListsByUser(userId: string): Promise<IUser | null> {
+    return await User.findById(userId).populate('todoLists');
   }
 }
 

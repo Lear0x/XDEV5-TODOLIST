@@ -10,6 +10,8 @@ export const createTodoList = async (req: Request, res: Response, next: NextFunc
   }
 };
 
+
+
 export const getTodoListById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const todoList = await todoListService.getTodoListById(req.params.id);
@@ -22,6 +24,15 @@ export const getTodoListById = async (req: Request, res: Response, next: NextFun
     next(error);
   }
 };
+
+export const getAllTodoLists = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const todoLists = await todoListService.getAllTodoLists();
+    res.status(200).json(todoLists);
+  } catch (error) {
+    next(error);
+  }
+}
 
 export const updateTodoList = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

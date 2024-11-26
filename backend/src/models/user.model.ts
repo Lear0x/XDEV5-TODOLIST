@@ -4,13 +4,13 @@ import { Schema, model, Document } from 'mongoose';
 export interface IUser extends Document {
   pseudo: string;
   mail: string;
-  todoItems: Schema.Types.ObjectId[];
+  todoLists: Schema.Types.ObjectId[];
 }
 
 const userSchema = new Schema<IUser>({
   pseudo: { type: String, required: true },
   mail: { type: String, required: true, unique: true },
-  todoItems: [{ type: Schema.Types.ObjectId, ref: 'TodoItem' }]
+  todoLists: [{ type: Schema.Types.ObjectId, ref: 'TodoList' }]
 });
 
 export const User = model<IUser>('User', userSchema);

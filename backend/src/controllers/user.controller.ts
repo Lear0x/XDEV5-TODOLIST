@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import userService from '../services/user.service';
+import mongoose from 'mongoose';
 
 export const createUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -23,28 +24,63 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
+
+export const getTodoListsByUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = await userService.getTodoListsByUser(req.params.userId);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+    } else {
+      res.status(200).json(user.todoLists);
+    }
+  } catch (error) {
+    next(error);
+  }
+}
+
+
 export const updateUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const userId = req.params.id;
+    const { todoListId, ...updateData } = req.body;
 
-    // Vérification que l'ID est fourni
-    if (!userId) {
-      res.status(400).json({ message: 'User ID is required' });
-      return; // Fin de la fonction
+    // Vérifier si l'ID utilisateur est valide
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      res.status(400).json({ error: 'Invalid User ID' });
+      return;
     }
 
-    // Mise à jour de l'utilisateur
-    const updatedUser = await userService.updateUser(userId, req.body);
+    // Ajouter un todoListId si fourni
+    if (todoListId) {
+      if (!mongoose.Types.ObjectId.isValid(todoListId)) {
+        res.status(400).json({ error: 'Invalid TodoList ID' });
+        return;
+      }
 
-    // Si l'utilisateur n'existe pas
+      // Ajouter la todoListId au tableau
+      const user = await userService.getUserById(userId);
+      if (!user) {
+        res.status(404).json({ error: 'User not found' });
+        return;
+      }
+
+      // Ajouter l'ID si ce n'est pas déjà présent
+      if (!user.todoLists.includes(todoListId)) {
+        user.todoLists.push(todoListId as any);
+      }
+
+      await user.save();
+    }
+
+    // Mettre à jour les autres champs
+    const updatedUser = await userService.updateUser(userId, updateData);
+
     if (!updatedUser) {
-      res.status(404).json({ message: 'User not found' });
-      return; // Fin de la fonction
+      res.status(404).json({ error: 'User not found' });
+    } else {
+      res.status(200).json(updatedUser);
     }
-
-    // Retourner l'utilisateur mis à jour
-    res.status(200).json(updatedUser);
   } catch (error) {
-    next(error); // Transmettre l'erreur au middleware global
+    next(error);
   }
 };

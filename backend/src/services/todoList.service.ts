@@ -2,7 +2,11 @@ import { TodoList, ITodoList } from '../models/todoList.model';
 import { TodoItem, ITodoItem } from '../models/todoItem.model';
 
 class TodoListService {
+  
   async createTodoList(data: Partial<ITodoList>): Promise<ITodoList> {
+    if (!data.todoItems || !Array.isArray(data.todoItems)) {
+      data.todoItems = [];
+    }
     const todoList = new TodoList(data);
     return await todoList.save();
   }
