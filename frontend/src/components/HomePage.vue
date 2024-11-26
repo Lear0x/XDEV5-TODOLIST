@@ -5,8 +5,8 @@
       <div
         class="todo-box"
         v-for="list in todoLists"
-        :key="list.id"
-        @click="goToList(list.id)"
+        :key="list._id"
+        @click="goToList(list._id)"
       >
         <h2>{{ list.label }}</h2>
       </div>
@@ -15,21 +15,36 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "HomePage",
   data() {
     return {
-      todoLists: [
-        { id: 1, label: "ToDoList 1" },
-        { id: 2, label: "ToDoList 2" },
-        { id: 3, label: "ToDoList 3" },
-      ],
+      todoLists: [], // Liste vide initialement
     };
   },
   methods: {
+    // Méthode pour naviguer vers une todolist
     goToList(id) {
       this.$router.push(`/todolist/${id}`);
     },
+    // Méthode pour récupérer les données
+    async fetchTodoLists() {
+      try {
+        const response = await axios.get(
+          "http://localhost:3000/api/todo-lists/"
+        );
+        this.todoLists = response.data; // Assigner les données à la liste
+        console.log(this.todoLists);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des todolists :", error);
+      }
+    },
+  },
+  // Récupérer les données au montage du composant
+  mounted() {
+    this.fetchTodoLists();
   },
 };
 </script>
