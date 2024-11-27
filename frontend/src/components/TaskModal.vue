@@ -29,12 +29,12 @@
         <input
           id="startDate"
           type="date"
-          v-model="taskData.startDate"
+          v-model="formattedStartDate"
           required
         />
 
         <label for="endDate">End Date:</label>
-        <input id="endDate" type="date" v-model="taskData.endDate" required />
+        <input id="endDate" type="date" v-model="formattedEndDate" required />
 
         <label for="state">State:</label>
         <select id="state" v-model="taskData.state" required>
@@ -68,7 +68,7 @@ export default {
         tag: "",
         startDate: "",
         endDate: "",
-        state: "To do", 
+        state: "To do",
         assignedTo: "6745c904e91d2af46701ab45",
       }),
     },
@@ -79,9 +79,43 @@ export default {
       taskData: { ...this.task },
     };
   },
+  watch: {
+    task: {
+      immediate: true,
+      handler(newTask) {
+        this.taskData = { ...newTask };
+      },
+    },
+  },
+  computed: {
+    formattedStartDate: {
+      get() {
+        return this.formatDateForInput(this.taskData.startDate);
+      },
+      set(value) {
+        this.taskData.startDate = value;
+      },
+    },
+    formattedEndDate: {
+      get() {
+        return this.formatDateForInput(this.taskData.endDate);
+      },
+      set(value) {
+        this.taskData.endDate = value;
+      },
+    },
+  },
   methods: {
     handleSubmit() {
       this.$emit("submit", this.taskData);
+    },
+    formatDateForInput(date) {
+      if (!date) return "";
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
     },
   },
 };
@@ -186,6 +220,7 @@ export default {
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);

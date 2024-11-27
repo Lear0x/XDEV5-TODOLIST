@@ -100,15 +100,13 @@ export default {
     },
     async handleTaskSubmit(task) {
       if (this.isEditMode) {
-        Object.keys(this.tasks).forEach((state) => {
-          const index = this.tasks[state].findIndex((t) => t.id === task.id);
-          if (index !== -1) {
-            this.tasks[state][index] = task;
-          }
-        });
+        await axios
+          .put(`http://localhost:3000/api/todo-items/${task._id}`, task)
+          .then(async (response) => {
+            console.log("response", response);
+          });
       } else {
         console.log(task);
-
         task.assignedTo = "6745c904e91d2af46701ab45";
         try {
           await axios
