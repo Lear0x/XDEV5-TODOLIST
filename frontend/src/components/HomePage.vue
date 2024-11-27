@@ -3,17 +3,24 @@
     <h1>
       Mes ToDoLists
       <button class="add-todolist-btn" @click="openAddTodoListModal">+</button>
+      <button class="edit-mode-btn" @click="toggleDeleteMode">✏️</button>
     </h1>
     <div class="todo-lists">
       <div
         class="todo-box"
         v-for="list in todoLists"
         :key="list._id"
-        @click="goToList(list._id)"
+        @click="!deleteMode && goToList(list._id)"
       >
         <h2>{{ list.label }}</h2>
+        <button
+          class="trash"
+          v-if="deleteMode"
+          @click.stop="deleteTodoList(list._id)"
+        >
+          🗑️
+        </button>
       </div>
-      <button class="trash">🗑️</button>
     </div>
 
     <div class="modal-overlay" v-if="showModal">
@@ -27,7 +34,6 @@
             placeholder="Ex: Courses de la semaine"
             required
           />
-
           <div class="form-actions">
             <button type="submit">Ajouter</button>
             <button type="button" @click="closeModal">Annuler</button>
@@ -47,6 +53,7 @@ export default {
     return {
       todoLists: [],
       showModal: false,
+      deleteMode: false, // Nouveau état pour activer le mode suppression
       newTodoList: {
         label: "",
       },
@@ -62,7 +69,6 @@ export default {
           "http://localhost:3000/api/todo-lists/"
         );
         this.todoLists = response.data;
-        console.log(this.todoLists);
       } catch (error) {
         console.error("Erreur lors de la récupération des todolists :", error);
       }
@@ -80,11 +86,21 @@ export default {
           "http://localhost:3000/api/todo-lists",
           this.newTodoList
         );
-        console.log("Nouvelle liste ajoutée :", response.data);
         this.todoLists.push(response.data);
         this.closeModal();
       } catch (error) {
         console.error("Erreur lors de l'ajout de la ToDoList :", error);
+      }
+    },
+    toggleDeleteMode() {
+      this.deleteMode = !this.deleteMode; // Alterne entre les modes normal et suppression
+    },
+    async deleteTodoList(id) {
+      try {
+        await axios.delete(`http://localhost:3000/api/todo-lists/${id}`);
+        this.todoLists = this.todoLists.filter((list) => list._id !== id);
+      } catch (error) {
+        console.error("Erreur lors de la suppression de la ToDoList :", error);
       }
     },
   },
@@ -116,7 +132,7 @@ export default {
   flex-wrap: wrap;
 }
 
-.trash{
+.trash {
   border: none;
   background: none;
   cursor: pointer;
@@ -148,7 +164,7 @@ export default {
 
 .todo-box button {
   padding: 10px 20px;
-  background-color: #007bff;
+  /* background-color: #007bff; */
   color: white;
   border: none;
   border-radius: 5px;
@@ -272,5 +288,22 @@ export default {
     opacity: 1;
     transform: scale(1);
   }
+}
+
+.edit-mode-btn {
+  margin-left: 10px;
+  font-size: 20px;
+  background: #ffc107;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.edit-mode-btn:hover {
+  transform: scale(1.1);
 }
 </style>
