@@ -105,7 +105,7 @@ export default {
       this.showModalEdit = false;
     },
     async addTaskSubmit(task) {
-      console.log(task);
+      console.log("task to add", task);
       task.assignedTo = "6745c904e91d2af46701ab45";
       try {
         await axios
@@ -146,7 +146,7 @@ export default {
       this.closeModal();
     },
     async deleteTask(id) {
-      console.log("delete");
+      console.log("id to delete", id);
       try {
         await axios
           .delete(`http://localhost:3000/api/todo-items/${id}`)

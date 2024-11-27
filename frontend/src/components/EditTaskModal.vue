@@ -1,7 +1,7 @@
 <template>
   <div class="modal-overlay" v-if="visible">
     <div class="modal">
-      <h2>Update task</h2>
+      <h2>Update Task</h2>
       <form @submit.prevent="handleSubmit">
         <label for="label">Label:</label>
         <input id="label" v-model="taskData.label" required />
@@ -20,8 +20,21 @@
           <option value="3">3</option>
         </select>
 
-        <label for="tag">Tag:</label>
-        <input id="tag" v-model="taskData.tag" />
+        <label for="tag">Tags:</label>
+        <div class="tags-input-container">
+          <input id="tag" v-model="newTag" placeholder="Add a tag" />
+          <button type="button" @click="addTag">+</button>
+        </div>
+        <div class="tags-list">
+          <span
+            v-for="(tagItem, index) in taskData.tag"
+            :key="index"
+            class="tag"
+          >
+            {{ tagItem }}
+            <button @click="removeTag(index)">×</button>
+          </span>
+        </div>
 
         <label for="startDate">Start Date:</label>
         <input
@@ -42,7 +55,7 @@
         </select>
 
         <div class="form-actions">
-          <button type="button" @click="handleSubmit">Update</button>
+          <button type="submit">Update</button>
           <button type="button" @click="$emit('close')">Cancel</button>
         </div>
       </form>
@@ -59,14 +72,21 @@ export default {
   },
   data() {
     return {
-      taskData: { ...this.task },
+      taskData: {
+        ...this.task,
+        tag: this.task && Array.isArray(this.task.tag) ? this.task.tag : [], // Vérifiez si `this.task` existe avant d'accéder à `tag`
+      },
+      newTag: "", // Nouveau tag à ajouter
     };
   },
   watch: {
     task: {
       immediate: true,
       handler(newTask) {
-        this.taskData = { ...newTask };
+        this.taskData = {
+          ...newTask,
+          tag: newTask && Array.isArray(newTask.tag) ? newTask.tag : [], // Assurez-vous que `newTask` existe et que `tag` est un tableau
+        };
       },
     },
   },
@@ -100,8 +120,48 @@ export default {
       const day = String(d.getDate()).padStart(2, "0");
       return `${year}-${month}-${day}`;
     },
+    addTag() {
+      if (this.newTag.trim()) {
+        this.taskData.tag.push(this.newTag.trim());
+        this.newTag = ""; // Réinitialiser le champ d'ajout de tag
+      }
+    },
+    removeTag(index) {
+      this.taskData.tag.splice(index, 1); // Supprime le tag à l'index donné
+    },
   },
 };
 </script>
 
 <style src="../assets/styles/TaskModal.css"></style>
+<style scoped>
+/* Styles pour les tags */
+.tags-input-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tags-list {
+  margin-top: 10px;
+}
+
+.tag {
+  display: inline-block;
+  background-color: #e0e0e0;
+  padding: 5px 10px;
+  margin-right: 5px;
+  border-radius: 20px;
+  font-size: 14px;
+  position: relative;
+}
+
+.tag button {
+  background: none;
+  border: none;
+  font-size: 14px;
+  margin-left: 5px;
+  cursor: pointer;
+  color: #ff0000;
+}
+</style>

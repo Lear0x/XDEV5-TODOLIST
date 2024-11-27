@@ -1,7 +1,7 @@
 <template>
   <div class="modal-overlay" v-if="visible">
     <div class="modal">
-      <h2>Create task</h2>
+      <h2>Create Task</h2>
       <form @submit.prevent="handleSubmit">
         <label for="label">Label:</label>
         <input id="label" v-model="taskData.label" required />
@@ -20,8 +20,21 @@
           <option value="3">3</option>
         </select>
 
-        <label for="tag">Tag:</label>
-        <input id="tag" v-model="taskData.tag" />
+        <label for="tag">Tags:</label>
+        <div class="tags-input-container">
+          <input id="tag" v-model="newTag" placeholder="Add a tag" />
+          <button type="button" @click="addTag">+</button>
+        </div>
+        <div class="tags-list">
+          <span
+            v-for="(tagItem, index) in taskData.tag"
+            :key="index"
+            class="tag"
+          >
+            {{ tagItem }}
+            <button @click="removeTag(index)">×</button>
+          </span>
+        </div>
 
         <label for="startDate">Start Date:</label>
         <input
@@ -42,7 +55,7 @@
         </select>
 
         <div class="form-actions">
-          <button type="button" @click="handleSubmit">Add</button>
+          <button type="submit">Add</button>
           <button type="button" @click="$emit('close')">Cancel</button>
         </div>
       </form>
@@ -62,12 +75,13 @@ export default {
         label: "",
         description: "",
         priority: "",
-        tag: "",
+        tag: [], // Tableau pour stocker les tags
         startDate: "",
         endDate: "",
         state: "To do",
         assignedTo: "6745c904e91d2af46701ab45",
       },
+      newTag: "", // Nouveau tag en cours d'ajout
     };
   },
   computed: {
@@ -100,8 +114,47 @@ export default {
       const day = String(d.getDate()).padStart(2, "0");
       return `${year}-${month}-${day}`;
     },
+    addTag() {
+      if (this.newTag.trim()) {
+        this.taskData.tag.push(this.newTag.trim());
+        this.newTag = ""; // Réinitialiser le champ de tag
+      }
+    },
+    removeTag(index) {
+      this.taskData.tag.splice(index, 1);
+    },
   },
 };
 </script>
 
-<style src="../assets/styles/TaskModal.css"></style>
+<style scoped>
+/* Styles pour le container de tags */
+.tags-input-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tags-list {
+  margin-top: 10px;
+}
+
+.tag {
+  display: inline-block;
+  background-color: #e0e0e0;
+  padding: 5px 10px;
+  margin-right: 5px;
+  border-radius: 20px;
+  font-size: 14px;
+  position: relative;
+}
+
+.tag button {
+  background: none;
+  border: none;
+  font-size: 14px;
+  margin-left: 5px;
+  cursor: pointer;
+  color: #ff0000;
+}
+</style>
