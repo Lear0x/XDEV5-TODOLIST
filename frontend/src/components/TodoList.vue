@@ -1,38 +1,76 @@
 <template>
   <div class="todolist">
     <h1>
-      ToDoList Vue {{ this.id }}
+      ToDoList
       <button class="add-task-btn" @click="openAddTaskModal">+</button>
     </h1>
 
+    <!-- Menu de filtre -->
+    <div class="filter-section">
+      <label for="priority-filter">Priority:</label>
+      <select id="priority-filter" v-model="filters.priority">
+        <option value="">All</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+      </select>
+
+      <label for="tag-filter">Tag:</label>
+      <input
+        id="tag-filter"
+        type="text"
+        placeholder="Filter by tag"
+        v-model="filters.tag"
+      />
+
+      <label for="tag-filter">Label:</label>
+      <input
+        id="tag-label"
+        type="text"
+        placeholder="Filter by label"
+        v-model="filters.label"
+      />
+
+      <!-- <label for="state-filter">State:</label>
+      <select id="state-filter" v-model="filters.state">
+        <option value="">All</option>
+        <option value="To do">To Do</option>
+        <option value="Pending">Pending</option>
+        <option value="Done">Done</option>
+      </select> -->
+    </div>
+
     <div class="columns">
+      <!-- TO DO Column -->
       <div class="column">
         <h2>TO DO</h2>
         <Task
-          v-for="task in tasks.filter((task) => task.state === 'To do')"
-          :key="task.id"
+          v-for="task in filteredTasks('To do')"
+          :key="task._id"
           :task="task"
           @edit-task="openEditTaskModal(task)"
           @delete-task="deleteTask(task._id)"
         />
       </div>
 
+      <!-- PENDING Column -->
       <div class="column">
         <h2>PENDING</h2>
         <Task
-          v-for="task in tasks.filter((task) => task.state === 'Pending')"
-          :key="task.id"
+          v-for="task in filteredTasks('Pending')"
+          :key="task._id"
           :task="task"
           @edit-task="openEditTaskModal(task)"
           @delete-task="deleteTask(task._id)"
         />
       </div>
 
+      <!-- DONE Column -->
       <div class="column">
         <h2>DONE</h2>
         <Task
-          v-for="task in tasks.filter((task) => task.state === 'Done')"
-          :key="task.id"
+          v-for="task in filteredTasks('Done')"
+          :key="task._id"
           :task="task"
           @edit-task="openEditTaskModal(task)"
           @delete-task="deleteTask(task._id)"
@@ -69,99 +107,104 @@ export default {
       showModalAdd: false,
       showModalEdit: false,
       selectedTask: null,
-      todolist: [],
       tasks: [],
+      filters: {
+        priority: "",
+        tag: "",
+        state: "",
+        label: "",
+      },
     };
   },
   methods: {
     async fetchTodoList() {
       try {
-        const id = this.id;
-        await axios
-          .get(`http://localhost:3000/api/todo-lists/${id}`)
-          .then((response) => {
-            this.tasks = response.data.todoItems;
-            console.log(this.tasks);
-          });
-
-        console.log(this.tasks);
+        const response = await axios.get(
+          `http://localhost:3000/api/todo-lists/${this.id}`
+        );
+        this.tasks = response.data.todoItems;
       } catch (error) {
-        console.error("Erreur lors de la récupération des todolists :", error);
+        console.error("Error fetching tasks:", error);
       }
     },
     openAddTaskModal() {
-      console.log("open add task");
       this.showModalAdd = true;
     },
     openEditTaskModal(task) {
-      console.log("open update task");
       this.selectedTask = task;
-      console.log(this.selectedTask);
       this.showModalEdit = true;
     },
     closeModal() {
-      console.log("closeeeeeeee");
       this.showModalAdd = false;
       this.showModalEdit = false;
     },
     async addTaskSubmit(task) {
-      console.log("task to add", task);
-      task.assignedTo = "6745c904e91d2af46701ab45";
       try {
-        await axios
-          .post(`http://localhost:3000/api/todo-items`, task)
-          .then(async (response) => {
-            console.log("response", response);
-            console.log("item", this.tasks);
-            const id = {
-              todoItemId: response.data._id,
-            };
-            this.tasks.push(task);
+        const response = await axios.post(
+          `http://localhost:3000/api/todo-items`,
+          task
+        );
+        const createdTask = response.data;
+        this.tasks.push(createdTask);
 
-            await axios
-              .put(`http://localhost:3000/api/todo-Lists/${this.id}`, id)
-              .then((response2) => {
-                console.log("response2", response2);
-              });
-          });
+        // Ajouter le nouvel ID à la todolist
+        await axios.put(`http://localhost:3000/api/todo-lists/${this.id}`, {
+          todoItemId: createdTask._id,
+        });
       } catch (error) {
-        console.error("Erreur lors de l'ajout d'un item :", error);
+        console.error("Error adding task:", error);
+      } finally {
+        this.closeModal();
       }
-      this.closeModal();
     },
     async editTaskSubmit(task) {
       try {
-        await axios
-          .put(`http://localhost:3000/api/todo-items/${task._id}`, task)
-          .then(async (response) => {
-            console.log("response", response);
-            const index = this.tasks.findIndex((t) => t._id === task._id);
-            if (index !== -1) {
-              this.tasks[index] = task;
-            }
-          });
+        const response = await axios.put(
+          `http://localhost:3000/api/todo-items/${task._id}`,
+          task
+        );
+        const updatedTask = response.data;
+
+        const index = this.tasks.findIndex((t) => t._id === task._id);
+        if (index !== -1) {
+          this.tasks[index] = updatedTask;
+        }
       } catch (error) {
-        console.error("Erreur lors de l'edit d'un item :", error);
+        console.error("Error editing task:", error);
+      } finally {
+        this.closeModal();
       }
-      this.closeModal();
     },
     async deleteTask(id) {
-      console.log("id to delete", id);
       try {
-        await axios
-          .delete(`http://localhost:3000/api/todo-items/${id}`)
-          .then(async (response) => {
-            console.log(response);
-            const index = this.tasks.findIndex((t) => t._id === id);
-            this.tasks.splice(index, 1);
-          });
+        await axios.delete(`http://localhost:3000/api/todo-items/${id}`);
+        this.tasks = this.tasks.filter((task) => task._id !== id);
       } catch (error) {
-        console.error("Erreur lors de la suppresion d'un item :", error);
+        console.error("Error deleting task:", error);
       }
+    },
+    filteredTasks(state) {
+      return this.tasks.filter((task) => {
+        const matchesState = state ? task.state === state : true;
+        const matchesPriority =
+          this.filters.priority !== ""
+            ? task.priority === parseInt(this.filters.priority, 10) // Conversion en nombre
+            : true;
+        const matchesLabel =
+          this.filters.label !== ""
+            ? task.label
+                ?.toLowerCase()
+                .includes(this.filters.label.toLowerCase())
+            : true;
+        const matchesTag =
+          this.filters.tag !== ""
+            ? task.tag?.some((tag) =>
+                tag.toLowerCase().includes(this.filters.tag.toLowerCase())
+              )
+            : true;
 
-      // Object.keys(this.tasks).forEach((state) => {
-      //   this.tasks[state] = this.tasks[state].filter((task) => task.id !== id);
-      // });
+        return matchesState && matchesPriority && matchesTag && matchesLabel;
+      });
     },
   },
   mounted() {
@@ -224,5 +267,29 @@ export default {
   margin-bottom: 10px;
   padding: 8px;
   border-radius: 5px;
+}
+
+.filter-section {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #f7f7f7;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.filter-section label {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.filter-section select,
+.filter-section input {
+  padding: 5px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
 }
 </style>
