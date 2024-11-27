@@ -13,7 +13,7 @@
           :key="task.id"
           :task="task"
           @edit-task="openEditTaskModal(task)"
-          @delete-task="deleteTask"
+          @delete-task="deleteTask(task._id)"
         />
       </div>
 
@@ -23,8 +23,8 @@
           v-for="task in tasks.filter((task) => task.state === 'Pending')"
           :key="task.id"
           :task="task"
-          @edit-task="openEditTaskModal"
-          @delete-task="deleteTask"
+          @edit-task="openEditTaskModal(task)"
+          @delete-task="deleteTask(task._id)"
         />
       </div>
 
@@ -34,18 +34,21 @@
           v-for="task in tasks.filter((task) => task.state === 'Done')"
           :key="task.id"
           :task="task"
-          @edit-task="openEditTaskModal"
-          @delete-task="deleteTask"
+          @edit-task="openEditTaskModal(task)"
+          @delete-task="deleteTask(task._id)"
         />
       </div>
     </div>
 
-    <!-- Composant réutilisable TaskModal -->
-    <TaskModal
-      :visible="showModal"
+    <AddTaskModal
+      :visible="showModalAdd"
+      @submit="addTaskSubmit"
+      @close="closeModal"
+    />
+    <EditTaskModal
+      :visible="showModalEdit"
       :task="selectedTask"
-      :isEditMode="isEditMode"
-      @submit="handleTaskSubmit"
+      @submit="editTaskSubmit"
       @close="closeModal"
     />
   </div>
@@ -53,17 +56,18 @@
 
 <script>
 import Task from "./Task.vue";
-import TaskModal from "./TaskModal.vue";
+import AddTaskModal from "./AddTaskModal.vue";
+import EditTaskModal from "./EditTaskModal.vue";
 import axios from "axios";
 
 export default {
   name: "ToDoList",
   props: ["id"],
-  components: { Task, TaskModal },
+  components: { Task, AddTaskModal, EditTaskModal },
   data() {
     return {
-      showModal: false,
-      isEditMode: false,
+      showModalAdd: false,
+      showModalEdit: false,
       selectedTask: null,
       todolist: [],
       tasks: [],
@@ -86,54 +90,78 @@ export default {
       }
     },
     openAddTaskModal() {
-      this.selectedTask = null;
-      this.isEditMode = false;
-      this.showModal = true;
+      console.log("open add task");
+      this.showModalAdd = true;
     },
     openEditTaskModal(task) {
+      console.log("open update task");
       this.selectedTask = task;
-      this.isEditMode = true;
-      this.showModal = true;
+      console.log(this.selectedTask);
+      this.showModalEdit = true;
     },
     closeModal() {
-      this.showModal = false;
+      console.log("closeeeeeeee");
+      this.showModalAdd = false;
+      this.showModalEdit = false;
     },
-    async handleTaskSubmit(task) {
-      if (this.isEditMode) {
+    async addTaskSubmit(task) {
+      console.log(task);
+      task.assignedTo = "6745c904e91d2af46701ab45";
+      try {
+        await axios
+          .post(`http://localhost:3000/api/todo-items`, task)
+          .then(async (response) => {
+            console.log("response", response);
+            console.log("item", this.tasks);
+            const id = {
+              todoItemId: response.data._id,
+            };
+            this.tasks.push(task);
+
+            await axios
+              .put(`http://localhost:3000/api/todo-Lists/${this.id}`, id)
+              .then((response2) => {
+                console.log("response2", response2);
+              });
+          });
+      } catch (error) {
+        console.error("Erreur lors de l'ajout d'un item :", error);
+      }
+      this.closeModal();
+    },
+    async editTaskSubmit(task) {
+      try {
         await axios
           .put(`http://localhost:3000/api/todo-items/${task._id}`, task)
           .then(async (response) => {
             console.log("response", response);
+            const index = this.tasks.findIndex((t) => t._id === task._id);
+            if (index !== -1) {
+              this.tasks[index] = task;
+            }
           });
-      } else {
-        console.log(task);
-        task.assignedTo = "6745c904e91d2af46701ab45";
-        try {
-          await axios
-            .post(`http://localhost:3000/api/todo-items`, task)
-            .then(async (response) => {
-              console.log("response", response);
-              console.log("item", this.tasks);
-              const id = {
-                todoItemId: response.data._id,
-              };
-
-              await axios
-                .put(`http://localhost:3000/api/todo-Lists/${this.id}`, id)
-                .then((response2) => {
-                  console.log("response2", response2);
-                });
-            });
-        } catch (error) {
-          console.error("Erreur lors de l'ajout d'un item :", error);
-        }
+      } catch (error) {
+        console.error("Erreur lors de l'edit d'un item :", error);
       }
       this.closeModal();
     },
-    deleteTask(id) {
-      Object.keys(this.tasks).forEach((state) => {
-        this.tasks[state] = this.tasks[state].filter((task) => task.id !== id);
-      });
+    async deleteTask(id) {
+      console.log("delete");
+      try {
+        await axios
+          .delete(`http://localhost:3000/api/todo-items/${id}`)
+          .then(async (response) => {
+            console.log(response);
+            const index = this.tasks.findIndex((t) => t._id === id);
+            this.tasks.splice(index, 1);
+          });
+      } catch (error) {
+        console.error("Erreur lors de la suppresion d'un item :", error);
+      }
+
+      // Object.keys(this.tasks).forEach((state) => {
+      //   this.tasks[state] = this.tasks[state].filter((task) => task.id !== id);
+      // });
     },
   },
   mounted() {

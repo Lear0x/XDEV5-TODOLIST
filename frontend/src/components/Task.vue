@@ -6,7 +6,7 @@
     <p class="task-deadline">{{ task.startDate }} - {{ task.endDate }}</p>
     <div class="task-actions">
       <button class="edit-btn" @click="editTask(task)">✏️</button>
-      <button class="delete-btn">🗑️</button>
+      <button class="delete-btn" @click="deleteTask(task.id)">🗑️</button>
     </div>
   </div>
 </template>

@@ -107,6 +107,7 @@ export default {
   },
   methods: {
     handleSubmit() {
+      console.log("Emitting submit event:", this.taskData);
       this.$emit("submit", this.taskData);
     },
     formatDateForInput(date) {

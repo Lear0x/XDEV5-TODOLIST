@@ -1,6 +1,9 @@
 <template>
   <div class="homepage">
-    <h1>Mes ToDoLists</h1>
+    <h1>
+      Mes ToDoLists
+      <button class="add-todolist-btn" @click="openAddTodoListModal">+</button>
+    </h1>
     <div class="todo-lists">
       <div
         class="todo-box"
@@ -9,6 +12,27 @@
         @click="goToList(list._id)"
       >
         <h2>{{ list.label }}</h2>
+      </div>
+      <button class="trash">🗑️</button>
+    </div>
+
+    <div class="modal-overlay" v-if="showModal">
+      <div class="modal">
+        <h2>Ajouter une nouvelle ToDoList</h2>
+        <form @submit.prevent="addTodoList">
+          <label for="label">Nom de la liste :</label>
+          <input
+            id="label"
+            v-model="newTodoList.label"
+            placeholder="Ex: Courses de la semaine"
+            required
+          />
+
+          <div class="form-actions">
+            <button type="submit">Ajouter</button>
+            <button type="button" @click="closeModal">Annuler</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -21,28 +45,49 @@ export default {
   name: "HomePage",
   data() {
     return {
-      todoLists: [], // Liste vide initialement
+      todoLists: [],
+      showModal: false,
+      newTodoList: {
+        label: "",
+      },
     };
   },
   methods: {
-    // Méthode pour naviguer vers une todolist
     goToList(id) {
       this.$router.push(`/todolist/${id}`);
     },
-    // Méthode pour récupérer les données
     async fetchTodoLists() {
       try {
         const response = await axios.get(
           "http://localhost:3000/api/todo-lists/"
         );
-        this.todoLists = response.data; // Assigner les données à la liste
+        this.todoLists = response.data;
         console.log(this.todoLists);
       } catch (error) {
         console.error("Erreur lors de la récupération des todolists :", error);
       }
     },
+    openAddTodoListModal() {
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
+      this.newTodoList.label = "";
+    },
+    async addTodoList() {
+      try {
+        const response = await axios.post(
+          "http://localhost:3000/api/todo-lists",
+          this.newTodoList
+        );
+        console.log("Nouvelle liste ajoutée :", response.data);
+        this.todoLists.push(response.data);
+        this.closeModal();
+      } catch (error) {
+        console.error("Erreur lors de l'ajout de la ToDoList :", error);
+      }
+    },
   },
-  // Récupérer les données au montage du composant
   mounted() {
     this.fetchTodoLists();
   },
@@ -50,6 +95,7 @@ export default {
 </script>
 
 <style scoped>
+/* Styles principaux */
 .homepage {
   max-width: 1200px;
   margin: 0 auto;
@@ -68,6 +114,15 @@ export default {
   justify-content: center;
   gap: 20px;
   flex-wrap: wrap;
+}
+
+.trash{
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 16px;
+  transition: transform 0.2s ease;
 }
 
 .todo-box {
@@ -105,5 +160,117 @@ export default {
   transform: translateY(-5px);
   box-shadow: 2px 4px 15px rgba(0, 0, 0, 0.2);
   background-color: #bbbbbb;
+}
+
+.add-todolist-btn {
+  margin-left: 20px;
+  font-size: 20px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+/* Styles pour le modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  width: 300px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.modal form label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 4px;
+  margin-top: 8px;
+  font-size: 15px;
+  color: #444;
+}
+
+.modal form input {
+  width: 100%;
+  padding: 6px;
+  margin-bottom: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.modal form input:focus {
+  border-color: #28a745;
+}
+
+.modal .form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.modal .form-actions button {
+  padding: 6px 10px;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.modal .form-actions button[type="submit"] {
+  background: #28a745;
+  color: white;
+}
+
+.modal .form-actions button[type="submit"]:hover {
+  background: #218838;
+}
+
+.modal .form-actions button[type="button"] {
+  background: #dc3545;
+  color: white;
+}
+
+.modal .form-actions button[type="button"]:hover {
+  background: #c82333;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 </style>
