@@ -38,20 +38,20 @@ describe('User Controller', () => {
 
   describe('GET /:id', () => {
     it('should return a user if found', async () => {
-      const mockUser = { _id: '123', pseudo: 'JohnDoe', mail: 'john.doe@example.com', todoLists: [] };
+      const mockUser = { _id: '6746e98f902ee6efcbe583eb', pseudo: 'JohnDoe', mail: 'john.doe@example.com', todoLists: [] };
       (userService.getUserById as jest.Mock).mockResolvedValue(mockUser);
 
-      const response = await request(app).get('/123');
+      const response = await request(app).get('/6746e98f902ee6efcbe583eb');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockUser);
-      expect(userService.getUserById).toHaveBeenCalledWith('123');
+      expect(userService.getUserById).toHaveBeenCalledWith('6746e98f902ee6efcbe583eb');
     });
 
     it('should return 404 if user is not found', async () => {
       (userService.getUserById as jest.Mock).mockResolvedValue(null);
 
-      const response = await request(app).get('/123');
+      const response = await request(app).get('/6746e98f902ee6efcbe583eb');
 
       expect(response.status).toBe(404);
       expect(response.body).toEqual({ message: 'User not found' });
@@ -60,20 +60,20 @@ describe('User Controller', () => {
 
   describe('GET /:userId/todoLists', () => {
     it('should return todoLists of the user', async () => {
-      const mockUser = { _id: '123', pseudo: 'JohnDoe', mail: 'john.doe@example.com', todoLists: ['todo1', 'todo2'] };
+      const mockUser = { _id: '6746e98f902ee6efcbe583eb', pseudo: 'JohnDoe', mail: 'john.doe@example.com', todoLists: ['todo1', 'todo2'] };
       (userService.getTodoListsByUser as jest.Mock).mockResolvedValue(mockUser);
 
-      const response = await request(app).get('/123/todoLists');
+      const response = await request(app).get('/6746e98f902ee6efcbe583eb/todoLists');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(['todo1', 'todo2']);
-      expect(userService.getTodoListsByUser).toHaveBeenCalledWith('123');
+      expect(userService.getTodoListsByUser).toHaveBeenCalledWith('6746e98f902ee6efcbe583eb');
     });
 
     it('should return 404 if user is not found', async () => {
       (userService.getTodoListsByUser as jest.Mock).mockResolvedValue(null);
 
-      const response = await request(app).get('/123/todoLists');
+      const response = await request(app).get('/6746e98f902ee6efcbe583eb/todoLists');
 
       expect(response.status).toBe(404);
       expect(response.body).toEqual({ error: 'User not found' });
@@ -82,20 +82,20 @@ describe('User Controller', () => {
 
   describe('PUT /:id', () => {
     it('should update a user and return 200', async () => {
-      const mockUpdatedUser = { _id: '123', pseudo: 'UpdatedName', mail: 'updated@example.com', todoLists: [] };
+      const mockUpdatedUser = { _id: '6746e98f902ee6efcbe583eb', pseudo: 'UpdatedName', mail: 'updated@example.com', todoLists: [] };
       (userService.updateUser as jest.Mock).mockResolvedValue(mockUpdatedUser);
 
-      const response = await request(app).put('/123').send({ pseudo: 'UpdatedName' });
+      const response = await request(app).put('/6746e98f902ee6efcbe583eb').send({ pseudo: 'UpdatedName' });
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockUpdatedUser);
-      expect(userService.updateUser).toHaveBeenCalledWith('123', { pseudo: 'UpdatedName' });
+      expect(userService.updateUser).toHaveBeenCalledWith('6746e98f902ee6efcbe583eb', { pseudo: 'UpdatedName' });
     });
 
     it('should return 404 if user to update is not found', async () => {
       (userService.updateUser as jest.Mock).mockResolvedValue(null);
 
-      const response = await request(app).put('/123').send({ pseudo: 'UpdatedName' });
+      const response = await request(app).put('/6746e98f902ee6efcbe583eb').send({ pseudo: 'UpdatedName' });
 
       expect(response.status).toBe(404);
       expect(response.body).toEqual({ error: 'User not found' });

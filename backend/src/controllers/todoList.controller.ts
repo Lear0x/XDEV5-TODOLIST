@@ -79,6 +79,7 @@ export const updateTodoList = async (req: Request, res: Response, next: NextFunc
     next(error);
   }
 };
+
 export const deleteTodoList = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const todoList = await todoListService.deleteTodoList(req.params.id);

@@ -18,7 +18,7 @@ describe('TodoItem Controller', () => {
   describe('POST /', () => {
     it('should create a todoItem successfully and return 201', async () => {
       const mockTodoItem = {
-        assignedTo: 'user123',
+        assignedTo: 'user6746e98f902ee6efcbe583eb',
         label: 'Task 1',
         description: 'Description of Task 1',
         priority: 1,
@@ -48,8 +48,8 @@ describe('TodoItem Controller', () => {
   describe('GET /:id', () => {
     it('should return a todoItem if found', async () => {
       const mockTodoItem = {
-        _id: '123',
-        assignedTo: 'user123',
+        _id: '6746e98f902ee6efcbe583eb',
+        assignedTo: 'user6746e98f902ee6efcbe583eb',
         label: 'Task 1',
         description: 'Description of Task 1',
         priority: 1,
@@ -60,17 +60,17 @@ describe('TodoItem Controller', () => {
       };
       (todoItemService.getTodoItemById as jest.Mock).mockResolvedValue(mockTodoItem);
 
-      const response = await request(app).get('/123');
+      const response = await request(app).get('/6746e98f902ee6efcbe583eb');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockTodoItem);
-      expect(todoItemService.getTodoItemById).toHaveBeenCalledWith('123');
+      expect(todoItemService.getTodoItemById).toHaveBeenCalledWith('6746e98f902ee6efcbe583eb');
     });
 
     it('should return 404 if todoItem is not found', async () => {
       (todoItemService.getTodoItemById as jest.Mock).mockResolvedValue(null);
 
-      const response = await request(app).get('/123');
+      const response = await request(app).get('/6746e98f902ee6efcbe583eb');
 
       expect(response.status).toBe(404);
       expect(response.body).toEqual({ error: 'TodoItem not found' });
@@ -80,8 +80,8 @@ describe('TodoItem Controller', () => {
   describe('PUT /:id', () => {
     it('should update a todoItem and return 200', async () => {
       const mockUpdatedTodoItem = {
-        _id: '123',
-        assignedTo: 'user123',
+        _id: '6746e98f902ee6efcbe583eb',
+        assignedTo: 'user6746e98f902ee6efcbe583eb',
         label: 'Updated Task',
         description: 'Updated Description',
         priority: 2,
@@ -92,17 +92,17 @@ describe('TodoItem Controller', () => {
       };
       (todoItemService.updateTodoItem as jest.Mock).mockResolvedValue(mockUpdatedTodoItem);
 
-      const response = await request(app).put('/123').send({ label: 'Updated Task', priority: 2 });
+      const response = await request(app).put('/6746e98f902ee6efcbe583eb').send({ label: 'Updated Task', priority: 2 });
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockUpdatedTodoItem);
-      expect(todoItemService.updateTodoItem).toHaveBeenCalledWith('123', { label: 'Updated Task', priority: 2 });
+      expect(todoItemService.updateTodoItem).toHaveBeenCalledWith('6746e98f902ee6efcbe583eb', { label: 'Updated Task', priority: 2 });
     });
 
     it('should return 404 if todoItem to update is not found', async () => {
       (todoItemService.updateTodoItem as jest.Mock).mockResolvedValue(null);
 
-      const response = await request(app).put('/123').send({ label: 'Updated Task', priority: 2 });
+      const response = await request(app).put('/6746e98f902ee6efcbe583eb').send({ label: 'Updated Task', priority: 2 });
 
       expect(response.status).toBe(404);
       expect(response.body).toEqual({ error: 'TodoItem not found' });
@@ -112,8 +112,8 @@ describe('TodoItem Controller', () => {
   describe('DELETE /:id', () => {
     it('should delete a todoItem and return 200', async () => {
       const mockDeletedTodoItem = {
-        _id: '123',
-        assignedTo: 'user123',
+        _id: '6746e98f902ee6efcbe583eb',
+        assignedTo: 'user6746e98f902ee6efcbe583eb',
         label: 'Task to delete',
         description: 'Description',
         priority: 1,
@@ -124,17 +124,17 @@ describe('TodoItem Controller', () => {
       };
       (todoItemService.deleteTodoItem as jest.Mock).mockResolvedValue(mockDeletedTodoItem);
 
-      const response = await request(app).delete('/123');
+      const response = await request(app).delete('/6746e98f902ee6efcbe583eb');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockDeletedTodoItem);
-      expect(todoItemService.deleteTodoItem).toHaveBeenCalledWith('123');
+      expect(todoItemService.deleteTodoItem).toHaveBeenCalledWith('6746e98f902ee6efcbe583eb');
     });
 
     it('should return 404 if todoItem to delete is not found', async () => {
       (todoItemService.deleteTodoItem as jest.Mock).mockResolvedValue(null);
 
-      const response = await request(app).delete('/123');
+      const response = await request(app).delete('/6746e98f902ee6efcbe583eb');
 
       expect(response.status).toBe(404);
       expect(response.body).toEqual({ error: 'TodoItem not found' });
