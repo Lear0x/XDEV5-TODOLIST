@@ -75,13 +75,13 @@ export default {
         label: "",
         description: "",
         priority: "",
-        tag: [], // Tableau pour stocker les tags
+        tag: [],
         startDate: "",
         endDate: "",
         state: "To do",
         assignedTo: "6745c904e91d2af46701ab45",
       },
-      newTag: "", // Nouveau tag en cours d'ajout
+      newTag: "",
     };
   },
   computed: {
@@ -117,7 +117,7 @@ export default {
     addTag() {
       if (this.newTag.trim()) {
         this.taskData.tag.push(this.newTag.trim());
-        this.newTag = ""; // Réinitialiser le champ de tag
+        this.newTag = "";
       }
     },
     removeTag(index) {
@@ -128,7 +128,7 @@ export default {
 </script>
 
 <style scoped>
-/* Styles pour le container de tags */
+/* Tags styles */
 .tags-input-container {
   display: flex;
   align-items: center;

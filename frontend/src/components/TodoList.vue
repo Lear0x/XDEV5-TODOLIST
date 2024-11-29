@@ -5,7 +5,7 @@
       <button class="add-task-btn" @click="openAddTaskModal">+</button>
     </h1>
 
-    <!-- Menu de filtre -->
+    <!-- filter -->
     <div class="filter-section">
       <label for="priority-filter">Priority:</label>
       <select id="priority-filter" v-model="filters.priority">
@@ -30,14 +30,6 @@
         placeholder="Filter by label"
         v-model="filters.label"
       />
-
-      <!-- <label for="state-filter">State:</label>
-      <select id="state-filter" v-model="filters.state">
-        <option value="">All</option>
-        <option value="To do">To Do</option>
-        <option value="Pending">Pending</option>
-        <option value="Done">Done</option>
-      </select> -->
     </div>
 
     <div class="columns">
@@ -154,7 +146,6 @@ export default {
         const createdTask = response.data;
         this.tasks.push(createdTask);
 
-        // Ajouter le nouvel ID à la todolist
         await axios.put(`http://localhost:3000/api/todo-lists/${this.id}`, {
           todoItemId: createdTask._id,
         });
@@ -235,7 +226,7 @@ export default {
       } catch (error) {
         console.error("Error updating task state:", error);
       } finally {
-        this.draggedTask = null; // Réinitialise la tâche déplacée
+        this.draggedTask = null;
       }
     },
   },
@@ -246,7 +237,7 @@ export default {
 </script>
 
 <style scoped>
-/* Styles principaux */
+/* Main styles */
 .todolist {
   max-width: 1200px;
   margin: 0 auto;
