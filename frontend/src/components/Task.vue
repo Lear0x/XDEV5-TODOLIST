@@ -7,7 +7,7 @@
       {{ formattedStartDate }} - {{ formattedEndDate }}
     </p>
 
-    <!-- Section pour afficher les tags -->
+    <!-- tags -->
     <div class="tags-list" v-if="task.tag && task.tag.length">
       <span v-for="(tag, index) in task.tag" :key="index" class="tag">
         {{ tag }}
@@ -49,7 +49,8 @@ export default {
       if (!date) return "N/A";
       const d = new Date(date);
       const options = { year: "numeric", month: "long", day: "numeric" };
-      return d.toLocaleDateString(undefined, options);
+
+      return d.toLocaleDateString("en-US", options);
     },
   },
 };

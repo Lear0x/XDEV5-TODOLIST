@@ -123,7 +123,7 @@ export default {
 </script>
 
 <style scoped>
-/* Styles principaux de la modale */
+/* Main styles */
 .modal-overlay {
   position: fixed;
   top: 0;

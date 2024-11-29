@@ -25,9 +25,9 @@
 
     <div class="modal-overlay" v-if="showModal">
       <div class="modal">
-        <h2>Ajouter une nouvelle ToDoList</h2>
+        <h2>Add Todolist</h2>
         <form @submit.prevent="addTodoList">
-          <label for="label">Nom de la liste :</label>
+          <label for="label">Name of the Todolist:</label>
           <input
             id="label"
             v-model="newTodoList.label"
@@ -35,8 +35,8 @@
             required
           />
           <div class="form-actions">
-            <button type="submit">Ajouter</button>
-            <button type="button" @click="closeModal">Annuler</button>
+            <button type="submit">Add</button>
+            <button type="button" @click="closeModal">Cancel</button>
           </div>
         </form>
       </div>
@@ -53,7 +53,7 @@ export default {
     return {
       todoLists: [],
       showModal: false,
-      deleteMode: false, // Nouveau état pour activer le mode suppression
+      deleteMode: false,
       newTodoList: {
         label: "",
       },
@@ -111,7 +111,7 @@ export default {
 </script>
 
 <style scoped>
-/* Styles principaux */
+/* Main styles */
 .homepage {
   max-width: 1200px;
   margin: 0 auto;
@@ -191,7 +191,7 @@ export default {
   transition: transform 0.2s;
 }
 
-/* Styles pour le modal */
+/* Modal styles */
 .modal-overlay {
   position: fixed;
   top: 0;

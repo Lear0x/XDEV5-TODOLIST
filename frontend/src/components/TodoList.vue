@@ -5,7 +5,7 @@
       <button class="add-task-btn" @click="openAddTaskModal">+</button>
     </h1>
 
-    <!-- Menu de filtre -->
+    <!-- filter -->
     <div class="filter-section">
       <label for="priority-filter">Priority:</label>
       <select id="priority-filter" v-model="filters.priority">
@@ -30,19 +30,11 @@
         placeholder="Filter by label"
         v-model="filters.label"
       />
-
-      <!-- <label for="state-filter">State:</label>
-      <select id="state-filter" v-model="filters.state">
-        <option value="">All</option>
-        <option value="To do">To Do</option>
-        <option value="Pending">Pending</option>
-        <option value="Done">Done</option>
-      </select> -->
     </div>
 
     <div class="columns">
       <!-- TO DO Column -->
-      <div class="column">
+      <div class="column" @dragover.prevent @drop="handleDrop('To do')">
         <h2>TO DO</h2>
         <Task
           v-for="task in filteredTasks('To do')"
@@ -50,11 +42,13 @@
           :task="task"
           @edit-task="openEditTaskModal(task)"
           @delete-task="deleteTask(task._id)"
+          draggable="true"
+          @dragstart="handleDragStart(task)"
         />
       </div>
 
       <!-- PENDING Column -->
-      <div class="column">
+      <div class="column" @dragover.prevent @drop="handleDrop('Pending')">
         <h2>PENDING</h2>
         <Task
           v-for="task in filteredTasks('Pending')"
@@ -62,11 +56,13 @@
           :task="task"
           @edit-task="openEditTaskModal(task)"
           @delete-task="deleteTask(task._id)"
+          draggable="true"
+          @dragstart="handleDragStart(task)"
         />
       </div>
 
       <!-- DONE Column -->
-      <div class="column">
+      <div class="column" @dragover.prevent @drop="handleDrop('Done')">
         <h2>DONE</h2>
         <Task
           v-for="task in filteredTasks('Done')"
@@ -74,6 +70,8 @@
           :task="task"
           @edit-task="openEditTaskModal(task)"
           @delete-task="deleteTask(task._id)"
+          draggable="true"
+          @dragstart="handleDragStart(task)"
         />
       </div>
     </div>
@@ -114,6 +112,7 @@ export default {
         state: "",
         label: "",
       },
+      draggedTask: null,
     };
   },
   methods: {
@@ -147,7 +146,6 @@ export default {
         const createdTask = response.data;
         this.tasks.push(createdTask);
 
-        // Ajouter le nouvel ID à la todolist
         await axios.put(`http://localhost:3000/api/todo-lists/${this.id}`, {
           todoItemId: createdTask._id,
         });
@@ -206,6 +204,31 @@ export default {
         return matchesState && matchesPriority && matchesTag && matchesLabel;
       });
     },
+    handleDragStart(task) {
+      this.draggedTask = task;
+    },
+    async handleDrop(newState) {
+      if (!this.draggedTask) return;
+
+      const updatedTask = { ...this.draggedTask, state: newState };
+
+      try {
+        const response = await axios.put(
+          `http://localhost:3000/api/todo-items/${this.draggedTask._id}`,
+          updatedTask
+        );
+        const index = this.tasks.findIndex(
+          (t) => t._id === this.draggedTask._id
+        );
+        if (index !== -1) {
+          this.tasks[index] = response.data;
+        }
+      } catch (error) {
+        console.error("Error updating task state:", error);
+      } finally {
+        this.draggedTask = null;
+      }
+    },
   },
   mounted() {
     this.fetchTodoList();
@@ -214,7 +237,7 @@ export default {
 </script>
 
 <style scoped>
-/* Styles principaux */
+/* Main styles */
 .todolist {
   max-width: 1200px;
   margin: 0 auto;
@@ -259,6 +282,11 @@ export default {
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 10px;
+  transition: background-color 0.2s;
+}
+
+.column:hover {
+  background-color: #f0f8ff;
 }
 
 .task-box {
@@ -267,6 +295,12 @@ export default {
   margin-bottom: 10px;
   padding: 8px;
   border-radius: 5px;
+  cursor: grab;
+}
+
+.task-box:active {
+  cursor: grabbing;
+  opacity: 0.8;
 }
 
 .filter-section {

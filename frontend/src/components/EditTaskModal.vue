@@ -74,9 +74,9 @@ export default {
     return {
       taskData: {
         ...this.task,
-        tag: this.task && Array.isArray(this.task.tag) ? this.task.tag : [], // Vérifiez si `this.task` existe avant d'accéder à `tag`
+        tag: this.task && Array.isArray(this.task.tag) ? this.task.tag : [],
       },
-      newTag: "", // Nouveau tag à ajouter
+      newTag: "",
     };
   },
   watch: {
@@ -85,7 +85,7 @@ export default {
       handler(newTask) {
         this.taskData = {
           ...newTask,
-          tag: newTask && Array.isArray(newTask.tag) ? newTask.tag : [], // Assurez-vous que `newTask` existe et que `tag` est un tableau
+          tag: newTask && Array.isArray(newTask.tag) ? newTask.tag : [],
         };
       },
     },
@@ -123,11 +123,11 @@ export default {
     addTag() {
       if (this.newTag.trim()) {
         this.taskData.tag.push(this.newTag.trim());
-        this.newTag = ""; // Réinitialiser le champ d'ajout de tag
+        this.newTag = "";
       }
     },
     removeTag(index) {
-      this.taskData.tag.splice(index, 1); // Supprime le tag à l'index donné
+      this.taskData.tag.splice(index, 1);
     },
   },
 };
@@ -135,7 +135,7 @@ export default {
 
 <style src="../assets/styles/TaskModal.css"></style>
 <style scoped>
-/* Styles pour les tags */
+/* Tags styles */
 .tags-input-container {
   display: flex;
   align-items: center;
